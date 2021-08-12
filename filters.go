@@ -93,3 +93,21 @@ func Where(queries ...string) QueryFilter {
 		return values, nil
 	}
 }
+
+func Filter(queries ...string) QueryFilter {
+	return func(values url.Values) (url.Values, error) {
+		for _, query := range queries {
+			if _, exists := values["filter"]; exists {
+				currentWhere := values.Get("filter")
+				if currentWhere == "" {
+					values.Set("filter", query)
+					continue
+				}
+				values.Set("filter", currentWhere+" and "+query)
+			} else {
+				values.Set("filter", query)
+			}
+		}
+		return values, nil
+	}
+}
